@@ -184,7 +184,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _draggableController.addListener(_onDragUpdate);
+  }
+
+  void _onDragUpdate() {
+    setState(() {
+      _bottomSheetSize = _draggableController.size;
+    });
+  }
+
+  @override
   void dispose() {
+    _draggableController.removeListener(_onDragUpdate);
     _draggableController.dispose();
     super.dispose();
   }
@@ -273,12 +286,16 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  child: Column(
-                    children: [
-                      // 드래그 핸들
-                      Container(
+                child: Column(
+                  children: [
+                    // 드래그 핸들
+                    GestureDetector(
+                      onVerticalDragUpdate: (details) {
+                        _draggableController.jumpTo(
+                          _draggableController.size - details.primaryDelta! / context.size!.height,
+                        );
+                      },
+                      child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 8),
                         width: 40,
                         height: 4,
@@ -287,79 +304,94 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                      // 시작 버튼
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // TODO: 시작 기능 구현
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 20),
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                            ),
-                            child: const Text(
-                              '시작',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      // 코스추천과 기록 버튼
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
+                    ),
+                    // 스크롤 가능한 내용
+                    Expanded(
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        child: Column(
                           children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: _expandBottomSheet,
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 15),
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: Colors.blue,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
+                            // 시작 버튼
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Center(
+                                child: Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.blue,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                child: const Text(
-                                  '코스추천',
-                                  style: TextStyle(fontSize: 16),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      // TODO: 시작 기능 구현
+                                    },
+                                    icon: const Icon(
+                                      Icons.play_arrow_rounded,
+                                      size: 40,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: _expandBottomSheet,
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 15),
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: Colors.blue,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
+                            // 코스추천과 기록 버튼
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: _expandBottomSheet,
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(vertical: 15),
+                                        backgroundColor: Colors.white,
+                                        foregroundColor: Colors.blue,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        '코스추천',
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                child: const Text(
-                                  '기록',
-                                  style: TextStyle(fontSize: 16),
-                                ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: _expandBottomSheet,
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(vertical: 15),
+                                        backgroundColor: Colors.white,
+                                        foregroundColor: Colors.blue,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        '기록',
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
+                            const SizedBox(height: 16),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               );
             },
